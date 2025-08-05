@@ -3,6 +3,7 @@
 #include <nd/nd.h>
 #include <nd/fight.h>
 #include <nd/plant.h>
+#include <nd/race.h>
 
 unsigned water = (1 << BIOME_WATER);
 unsigned common = ((1 << BIOME_SHRUBLAND)
@@ -56,7 +57,8 @@ static inline unsigned mob_skel_add(
 		unsigned y,
 		unsigned char lvl,
 		unsigned char lvl_v,
-		unsigned char flags)
+		unsigned char flags,
+		unsigned race_id)
 {
 	SENT ent_skel = {
 		.biomes = biomes,
@@ -73,6 +75,7 @@ static inline unsigned mob_skel_add(
 	memcpy(skel.data, &ent_skel, sizeof(ent_skel));
 	unsigned skid = nd_put(HD_SKEL, NULL, &skel);
 	call_fighter_skel_add(skid, lvl, lvl_v, flags);
+	call_race_set(skid, race_id);
 	mob_refs[mob_max] = skid;
 	mob_max++;
 	return skid;
@@ -80,15 +83,19 @@ static inline unsigned mob_skel_add(
 
 void
 mod_install(void) {
-	mob_skel_add("goldfish", 2, ELM_WATER, water, 4, 0, 0, 0);
-	mob_skel_add("salmon", 6, ELM_WATER, water, 4, 0, 0, 0);
-	mob_skel_add("tuna", 13, ELM_WATER, water, 6, 0, 0, 0);
-	mob_skel_add("koifish", 3, ELM_WATER, water, 1, 0, 0, 0);
-	mob_skel_add("dolphin", 1, ELM_WATER, water, 1, 0, 0, 0);
-	mob_skel_add("shark", 7, ELM_WATER, water, 13, 40, 0x1f, FF_AGGRO);
+	unsigned wt_peck = nd_put(HD_WTS, NULL, "peck");
+	unsigned wt_bite = nd_put(HD_WTS, NULL, "bite");
+	unsigned bird = call_race_add("bird", 0, 0, 2, 0, 1, 0, wt_peck);
+	unsigned fish = call_race_add("fish", 0, 2, 0, 1, 0, 0, wt_bite);
+	mob_skel_add("goldfish", 2, ELM_WATER, water, 4, 0, 0, 0, fish);
+	mob_skel_add("salmon", 6, ELM_WATER, water, 4, 0, 0, 0, fish);
+	mob_skel_add("tuna", 13, ELM_WATER, water, 6, 0, 0, 0, fish);
+	mob_skel_add("koifish", 3, ELM_WATER, water, 1, 0, 0, 0, fish);
+	mob_skel_add("dolphin", 1, ELM_WATER, water, 1, 0, 0, 0, fish);
+	mob_skel_add("shark", 7, ELM_WATER, water, 13, 40, 0x1f, FF_AGGRO, fish);
 	/* .y = 13, .lvl = 40, .lvl_v = 0x1f, */
-	mob_skel_add("moonfish", 0, ELM_WATER, water, 14, 0, 0, FF_AGGRO);
-	mob_skel_add("rainbowfish", 6, ELM_WATER, water, 14, 0, 0, FF_AGGRO);
+	mob_skel_add("moonfish", 0, ELM_WATER, water, 14, 0, 0, FF_AGGRO, fish);
+	mob_skel_add("rainbowfish", 6, ELM_WATER, water, 14, 0, 0, FF_AGGRO, fish);
 	mob_skel_add("icebird", 1, ELM_WATER, (
 			 (1 << BIOME_PERMANENT_ICE)
 			 | (1 << BIOME_TUNDRA)
@@ -96,10 +103,10 @@ mod_install(void) {
 			 | (1 << BIOME_TUNDRA3)
 			 | (1 << BIOME_TUNDRA4)
 			 | (1 << BIOME_COLD_DESERT)
-			), 14, 0, 0, FF_AGGRO);
-	mob_skel_add("parrot", 6, ELM_WATER, (1 << BIOME_TEMPERATE_RAINFOREST), 4, 0, 0, FF_AGGRO);
-	mob_skel_add("swallow", 9, ELM_AIR, common, 4, 0, 0, 0);
-	mob_skel_add("woodpecker", 7, ELM_AIR, common, 2, 0, 0, 0);
-	mob_skel_add("sparrow", 15, ELM_AIR, common, 3, 0, 0, 0);
-	mob_skel_add("owl", 9, ELM_AIR, common, 7, 0, 0, 0);
+			), 14, 0, 0, FF_AGGRO, bird);
+	mob_skel_add("parrot", 6, ELM_AIR, (1 << BIOME_TEMPERATE_RAINFOREST), 4, 0, 0, FF_AGGRO, bird);
+	mob_skel_add("swallow", 9, ELM_AIR, common, 4, 0, 0, 0, bird);
+	mob_skel_add("woodpecker", 7, ELM_AIR, common, 2, 0, 0, 0, bird);
+	mob_skel_add("sparrow", 15, ELM_AIR, common, 3, 0, 0, 0, bird);
+	mob_skel_add("owl", 9, ELM_AIR, common, 7, 0, 0, 0, bird);
 }
