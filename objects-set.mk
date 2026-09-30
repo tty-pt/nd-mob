@@ -1,0 +1,1 @@
+CFLAGS-libnd-mob-o := -fPIC
