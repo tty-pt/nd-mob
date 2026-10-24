@@ -109,33 +109,63 @@ static inline unsigned mob_skel_add(
 	return skid;
 }
 
-XY_MODULE_API void
-xy_install(void)
+static unsigned bird_race_id, fish_race_id;
+
+static int
+mob_row(const char *const *f, size_t n, void *user)
 {
-	unsigned wt_peck = (unsigned)nd_put(HD_WTS, NULL, "peck");
-	unsigned wt_bite = (unsigned)nd_put(HD_WTS, NULL, "bite");
-	unsigned bird = race_add("bird", 0, 0, 2, 0, 1, 0, wt_peck);
-	unsigned fish = race_add("fish", 0, 2, 0, 1, 0, 0, wt_bite);
-	mob_skel_add("goldfish", 2, ELM_WATER, water, 4, 0, 0, 0, fish);
-	mob_skel_add("salmon", 6, ELM_WATER, water, 4, 0, 0, 0, fish);
-	mob_skel_add("tuna", 13, ELM_WATER, water, 6, 0, 0, 0, fish);
-	mob_skel_add("koifish", 3, ELM_WATER, water, 1, 0, 0, 0, fish);
-	mob_skel_add("dolphin", 1, ELM_WATER, water, 1, 0, 0, 0, fish);
-	mob_skel_add("shark", 7, ELM_WATER, water, 13, 40, 0x1f, FF_AGGRO, fish);
-	/* .y = 13, .lvl = 40, .lvl_v = 0x1f, */
-	mob_skel_add("moonfish", 0, ELM_WATER, water, 14, 0, 0, FF_AGGRO, fish);
-	mob_skel_add("rainbowfish", 6, ELM_WATER, water, 14, 0, 0, FF_AGGRO, fish);
-	mob_skel_add("icebird", 1, ELM_WATER, (
+	static const struct { const char *n; unsigned v; } elm[] = {
+		{ "spirit", ELM_SPIRIT }, { "fire", ELM_FIRE }, { "water", ELM_WATER },
+		{ "air", ELM_AIR }, { "earth", ELM_EARTH }, { "physical", ELM_PHYSICAL },
+	};
+	(void)user;
+	if (n < 9)
+		return 0;
+
+	char *name = (char *)f[0];
+	unsigned max_art = (unsigned)atoi(f[1]);
+	unsigned element = ELM_PHYSICAL;
+	for (size_t i = 0; i < sizeof(elm) / sizeof(elm[0]); i++)
+		if (!strcmp(elm[i].n, f[2]))
+			element = elm[i].v;
+
+	unsigned biomes = 0;
+	if (!strcmp(f[3], "water"))
+		biomes = water;
+	else if (!strcmp(f[3], "common"))
+		biomes = common;
+	else if (!strcmp(f[3], "cold"))
+		biomes = (
 			 (1 << BIOME_PERMANENT_ICE)
 			 | (1 << BIOME_TUNDRA)
 			 | (1 << BIOME_TUNDRA2)
 			 | (1 << BIOME_TUNDRA3)
 			 | (1 << BIOME_TUNDRA4)
 			 | (1 << BIOME_COLD_DESERT)
-			), 14, 0, 0, FF_AGGRO, bird);
-	mob_skel_add("parrot", 6, ELM_AIR, (1 << BIOME_TEMPERATE_RAINFOREST), 4, 0, 0, FF_AGGRO, bird);
-	mob_skel_add("swallow", 9, ELM_AIR, common, 4, 0, 0, 0, bird);
-	mob_skel_add("woodpecker", 7, ELM_AIR, common, 2, 0, 0, 0, bird);
-	mob_skel_add("sparrow", 15, ELM_AIR, common, 3, 0, 0, 0, bird);
-	mob_skel_add("owl", 9, ELM_AIR, common, 7, 0, 0, 0, bird);
+		);
+	else if (!strcmp(f[3], "temperate_rainforest"))
+		biomes = (1 << BIOME_TEMPERATE_RAINFOREST);
+	else
+		biomes = (unsigned)strtoul(f[3], NULL, 0);
+
+	unsigned y = (unsigned)atoi(f[4]);
+	unsigned char lvl = (unsigned char)atoi(f[5]);
+	unsigned char lvl_v = (unsigned char)strtoul(f[6], NULL, 0);
+	unsigned char flags = (!strcmp(f[7], "aggro") || atoi(f[7])) ? FF_AGGRO : 0;
+	unsigned race_id = !strcmp(f[8], "bird") ? bird_race_id : fish_race_id;
+
+	mob_skel_add(name, max_art, element, biomes, y, lvl, lvl_v, flags, race_id);
+	return 0;
+}
+
+XY_MODULE_API void
+xy_install(void)
+{
+	unsigned wt_peck = (unsigned)nd_put(HD_WTS, NULL, "peck");
+	unsigned wt_bite = (unsigned)nd_put(HD_WTS, NULL, "bite");
+	bird_race_id = race_add("bird", 0, 0, 2, 0, 1, 0, wt_peck);
+	fish_race_id = race_add("fish", 0, 2, 0, 1, 0, 0, wt_bite);
+
+	if (nd_table_load("nd-mob", "mobs", mob_row, NULL) < 0)
+		WARN("nd-mob: mobs.dsv not found, no mobs loaded\n");
 }
