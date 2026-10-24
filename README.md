@@ -57,6 +57,10 @@ same command works either way. CI names the deps explicitly
 * `on_spawn` reads the tile, picks the species by spawn density, and places
   the mob. That is the whole module.
 
+## Packaged Assets
+
+- **Art (`art/`)**: Monster, creature, and NPC entity graphics stored in `art/entity/`.
+
 ## Testing
 
 There is no `test.sh` here. Behaviour is asserted by the engine's own suite:

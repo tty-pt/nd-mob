@@ -1,4 +1,12 @@
-## 1.0.2
+## [1.0.3]
+
+- **Declarative DSV Table (`data/mobs.dsv`)**:
+  - Exported 14 monster and NPC definitions into declarative `data/mobs.dsv` table.
+  - Refactored `src/libnd-mob.c` to load spawn templates dynamically via `nd_table_load()`.
+- **Documentation**:
+  - Standardized README with man-src, art, and modder guide.
+
+## [1.0.2]
 
 - **The sibling `-I` lines are gone.** `CFLAGS += -I$(shell cd .. && pwd)/…`
   pointed at the axil-nd/nd sibling checkouts and only existed for a dev

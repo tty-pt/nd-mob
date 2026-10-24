@@ -1,0 +1,19 @@
+# name|max_art|element|biomes|y|lvl|lvl_v|flags|race
+# element: water|air|fire|earth|physical|spirit
+# biomes:  water|common|cold|temperate_rainforest or bitmask
+# flags:   aggro or 0
+# race:    fish|bird
+goldfish|2|water|water|4|0|0|0|fish
+salmon|6|water|water|4|0|0|0|fish
+tuna|13|water|water|6|0|0|0|fish
+koifish|3|water|water|1|0|0|0|fish
+dolphin|1|water|water|1|0|0|0|fish
+shark|7|water|water|13|40|0x1f|aggro|fish
+moonfish|0|water|water|14|0|0|aggro|fish
+rainbowfish|6|water|water|14|0|0|aggro|fish
+icebird|1|water|cold|14|0|0|aggro|bird
+parrot|6|air|temperate_rainforest|4|0|0|aggro|bird
+swallow|9|air|common|4|0|0|0|bird
+woodpecker|7|air|common|2|0|0|0|bird
+sparrow|15|air|common|3|0|0|0|bird
+owl|9|air|common|7|0|0|0|bird
